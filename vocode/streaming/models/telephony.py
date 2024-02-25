@@ -117,7 +117,7 @@ class TwilioCallConfig(BaseCallConfig, type=CallConfigType.TWILIO.value):
             sampling_rate=DEFAULT_SAMPLING_RATE,
             audio_encoding=DEFAULT_AUDIO_ENCODING,
             chunk_size=DEFAULT_CHUNK_SIZE,
-            model="phonecall",
+            model="nova-2-phonecall",
             tier="nova",
             endpointing_config=PunctuationEndpointingConfig(),
         )
@@ -141,7 +141,7 @@ class VonageCallConfig(BaseCallConfig, type=CallConfigType.VONAGE.value):
             sampling_rate=VONAGE_SAMPLING_RATE,
             audio_encoding=VONAGE_AUDIO_ENCODING,
             chunk_size=VONAGE_CHUNK_SIZE,
-            model="phonecall",
+            model="nova-2-phonecall",
             tier="nova",
             endpointing_config=PunctuationEndpointingConfig(),
         )
