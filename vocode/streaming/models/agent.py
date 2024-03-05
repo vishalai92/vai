@@ -56,6 +56,7 @@ class WebhookConfig(BaseModel):
     url: str
 
 
+# Azure
 class AzureOpenAIConfig(BaseModel):
     api_type: str = AZURE_OPENAI_DEFAULT_API_TYPE
     api_version: Optional[str] = AZURE_OPENAI_DEFAULT_API_VERSION
