@@ -70,7 +70,11 @@ class TwilioClient(BaseTelephonyClient):
             .fetch(fields="line_type_intelligence")
             .line_type_intelligence
         )
+
+        # Updated logic to allow mobile and VoIP numbers
+        allowed_types = ["mobile", "fixedVoip", "nonFixedVoip"]
         if not line_type_intelligence or (
-            line_type_intelligence and line_type_intelligence["type"] != "mobile"
+            line_type_intelligence
+            and line_type_intelligence["type"] not in allowed_types
         ):
-            raise ValueError("Can only call mobile phones")
+            raise ValueError("Can only call mobile and VoIP phones")
