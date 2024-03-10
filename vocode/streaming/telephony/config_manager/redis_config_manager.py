@@ -2,6 +2,7 @@ import logging
 import os
 from typing import Optional
 from redis.asyncio import Redis
+from urllib.parse import urlparse
 
 from vocode.streaming.models.telephony import BaseCallConfig
 from vocode.streaming.telephony.config_manager.base_config_manager import (
