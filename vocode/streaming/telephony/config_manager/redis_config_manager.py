@@ -11,18 +11,26 @@ from vocode.streaming.telephony.config_manager.base_config_manager import (
 
 class RedisConfigManager(BaseConfigManager):
     def __init__(self, logger: Optional[logging.Logger] = None):
-        use_tls = os.environ.get("REDIS_TLS", "false").lower() in ["true", "1", "t"]
-        ssl_cert_reqs = "none" if use_tls else None
-        self.redis: Redis = Redis(
-            host=os.environ.get("REDISHOST", "localhost"),
-            port=int(os.environ.get("REDISPORT", 6379)),
-            username=os.environ.get("REDISUSER", None),
-            password=os.environ.get("REDISPASSWORD", None),
-            db=0,
-            ssl=use_tls,
-            ssl_cert_reqs=ssl_cert_reqs,
-            decode_responses=True,
-        )
+        redis_uri = os.environ.get("REDISURI", None)
+        if redis_uri:
+            # Parse the URI and use it to connect
+            uri = urlparse(redis_uri)
+            use_tls = uri.scheme == "rediss"
+            self.redis = Redis.from_url(redis_uri, decode_responses=True, ssl=use_tls)
+        else:
+            # Fallback to the existing connection method
+            use_tls = os.environ.get("REDIS_TLS", "false").lower() in ["true", "1", "t"]
+            ssl_cert_reqs = "none" if use_tls else None
+            self.redis = Redis(
+                host=os.environ.get("REDISHOST", "localhost"),
+                port=int(os.environ.get("REDISPORT", 6379)),
+                username=os.environ.get("REDISUSER", None),
+                password=os.environ.get("REDISPASSWORD", None),
+                db=0,
+                ssl=use_tls,
+                ssl_cert_reqs=ssl_cert_reqs,
+                decode_responses=True,
+            )
         self.logger = logger or logging.getLogger(__name__)
 
     async def save_config(self, conversation_id: str, config: BaseCallConfig):
