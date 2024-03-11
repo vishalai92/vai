@@ -16,8 +16,7 @@ class RedisConfigManager(BaseConfigManager):
         if redis_uri:
             # Parse the URI and use it to connect
             uri = urlparse(redis_uri)
-            use_tls = uri.scheme == "rediss"
-            self.redis = Redis.from_url(redis_uri, decode_responses=True, ssl=use_tls)
+            self.redis = Redis.from_url(redis_uri, decode_responses=True)
         else:
             # Fallback to the existing connection method
             use_tls = os.environ.get("REDIS_TLS", "false").lower() in ["true", "1", "t"]
