@@ -61,13 +61,10 @@ class DeepgramSynthesizer(BaseSynthesizer[DeepgramSynthesizerConfig]):
             if response.status != 200:
                 raise Exception(f"Deepgram API returned {response.status} status code")
 
-            audio_stream = decode_audio_stream(
-                await response.content.read(), format="mp3"
-            )
-
-            create_speech_span.end()
             return SynthesisResult(
-                audio_stream,
+                self.experimental_mp3_streaming_output_generator(
+                    response, chunk_size, create_speech_span
+                ),  # should be wav
                 lambda seconds: self.get_message_cutoff_from_voice_speed(
                     message, seconds, self.words_per_minute
                 ),
