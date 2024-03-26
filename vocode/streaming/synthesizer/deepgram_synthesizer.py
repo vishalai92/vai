@@ -15,7 +15,6 @@ from vocode.streaming.synthesizer.base_synthesizer import (
     encode_as_wav,
     tracer,
 )
-from vocode.streaming.utils.audio_helper import decode_audio_stream
 from vocode import getenv
 
 DEEPGRAM_BASE_URL = "https://api.deepgram.com/v1/speak"
@@ -69,15 +68,6 @@ class DeepgramSynthesizer(BaseSynthesizer[DeepgramSynthesizerConfig]):
                     message, seconds, self.words_per_minute
                 ),
             )
-
-
-def decode_audio_stream(audio_data: bytes, format: str = "mp3") -> bytes:
-    """
-    Function to decode incoming audio stream. This could be extended to
-    convert MP3 to WAV if needed, or handle different audio formats.
-    """
-    # Placeholder for actual implementation
-    return audio_data
 
 
 # Additional classes like DeepgramSynthesizerConfig, BotSentiment might need to be defined or adapted based on the existing code structure.
