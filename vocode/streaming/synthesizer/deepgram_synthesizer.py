@@ -10,6 +10,7 @@ from vocode.streaming.models.synthesizer import (
 )
 from vocode.streaming.models.message import BaseMessage
 from vocode.streaming.agent.bot_sentiment_analyser import BotSentiment
+from vocode.streaming.utils.mp3_helper import decode_mp3
 from vocode.streaming.synthesizer.base_synthesizer import (
     BaseSynthesizer,
     SynthesisResult,
@@ -55,20 +56,29 @@ class DeepgramSynthesizer(BaseSynthesizer[DeepgramSynthesizerConfig]):
 
         session = self.aiohttp_session
 
-        async with session.post(
-            url, json=body, headers=headers, timeout=aiohttp.ClientTimeout(total=15)
-        ) as response:
-            if response.status != 200:
-                raise Exception(f"Deepgram API returned {response.status} status code")
+        response = await session.request(
+            "POST",
+            url,
+            json=body,
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=15),
+        )
+        if not response.ok:
+            raise Exception(f"Deepgram API returned {response.status} status code")
 
-            return SynthesisResult(
-                self.experimental_mp3_streaming_output_generator(
-                    response, chunk_size, create_speech_span
-                ),  # should be wav
-                lambda seconds: self.get_message_cutoff_from_voice_speed(
-                    message, seconds, self.words_per_minute
-                ),
-            )
+        audio_data = await response.read()
+        create_speech_span.end()
+        convert_span = tracer.start_span(
+            f"synthesizer.{SynthesizerType.DEEPGRAM.value.split('_', 1)[-1]}.convert",
+        )
+        output_bytes_io = decode_mp3(audio_data)
 
+        result = self.create_synthesis_result_from_wav(
+            synthesizer_config=self.synthesizer_config,
+            file=output_bytes_io,
+            message=message,
+            chunk_size=chunk_size,
+        )
+        convert_span.end()
 
-# Additional classes like DeepgramSynthesizerConfig, BotSentiment might need to be defined or adapted based on the existing code structure.
+        return result
