@@ -218,3 +218,4 @@ DEFAULT_DEEPGRAM_MODEL = "aura-asteria-en"
 
 class DeepgramSynthesizerConfig(SynthesizerConfig, type=SynthesizerType.DEEPGRAM.value):
     model: str = DEFAULT_DEEPGRAM_MODEL
+    api_key: Optional[str] = None

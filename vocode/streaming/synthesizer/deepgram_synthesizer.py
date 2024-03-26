@@ -9,6 +9,7 @@ from vocode.streaming.models.synthesizer import (
     SynthesizerType,
 )
 from vocode.streaming.models.message import BaseMessage
+from vocode.streaming.agent.bot_sentiment_analyser import BotSentiment
 from vocode.streaming.synthesizer.base_synthesizer import (
     BaseSynthesizer,
     SynthesisResult,
