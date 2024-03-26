@@ -217,6 +217,4 @@ DEFAULT_DEEPGRAM_MODEL = "aura-asteria-en"
 
 
 class DeepgramSynthesizerConfig(SynthesizerConfig, type=SynthesizerType.DEEPGRAM.value):
-    language_code: str = DEFAULT_POLLY_LANGUAGE_CODE
-    voice_id: str = DEFAULT_POLLY_VOICE_ID
-    sampling_rate: int = DEFAULT_POLLY_SAMPLING_RATE
+    model: str = DEFAULT_DEEPGRAM_MODEL
