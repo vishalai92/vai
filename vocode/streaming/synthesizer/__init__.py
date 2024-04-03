@@ -4,6 +4,7 @@ from vocode.streaming.synthesizer.base_synthesizer import BaseSynthesizer
 from vocode.streaming.synthesizer.coqui_synthesizer import CoquiSynthesizer
 from vocode.streaming.synthesizer.coqui_tts_synthesizer import CoquiTTSSynthesizer
 from vocode.streaming.synthesizer.eleven_labs_synthesizer import ElevenLabsSynthesizer
+from vocode.streaming.synthesizer.deepgram_synthesizer import DeepgramSynthesizer
 from vocode.streaming.synthesizer.google_synthesizer import GoogleSynthesizer
 from vocode.streaming.synthesizer.gtts_synthesizer import GTTSSynthesizer
 from vocode.streaming.synthesizer.play_ht_synthesizer import PlayHtSynthesizer
