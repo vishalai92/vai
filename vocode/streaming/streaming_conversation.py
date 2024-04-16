@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import asyncio
 import queue
+import numpy as np
 import random
 import threading
 from typing import Any, Awaitable, Callable, Generic, Optional, Tuple, TypeVar, cast
 import logging
 import time
 import typing
+import torch
 
 from vocode.streaming.action.worker import ActionsWorker
 
@@ -117,6 +119,7 @@ class StreamingConversation(Generic[OutputDeviceType]):
             self.interruptible_event_factory = interruptible_event_factory
 
         async def process(self, transcription: Transcription):
+            print("transcription", transcription)
             self.conversation.mark_last_action_timestamp()
             if transcription.message.strip() == "":
                 self.conversation.logger.info("Ignoring empty transcription")
@@ -387,6 +390,9 @@ class StreamingConversation(Generic[OutputDeviceType]):
         self.synthesizer = synthesizer
         self.synthesis_enabled = True
 
+        self.vad_model, self.vad_utils = self.load_vad_model()
+        self.audio_buffer = np.array([], dtype=np.float32)
+
         self.interruptible_events: queue.Queue[InterruptibleEvent] = queue.Queue()
         self.interruptible_event_factory = self.QueueingInterruptibleEventFactory(
             conversation=self
@@ -462,6 +468,37 @@ class StreamingConversation(Generic[OutputDeviceType]):
 
     def create_state_manager(self) -> ConversationStateManager:
         return ConversationStateManager(conversation=self)
+
+    def load_vad_model(self):
+        model, utils = torch.hub.load(
+            repo_or_dir="snakers4/silero-vad", model="silero_vad"
+        )
+        return model, utils
+
+    async def process_audio_chunk(self, chunk: bytes, sample_rate: int = 16000):
+        # Convert byte chunk to float32 and normalize
+        incoming_audio = np.frombuffer(chunk, dtype=np.int16).astype(np.float32) / 32768
+
+        # Append to the buffer
+        self.audio_buffer = np.concatenate((self.audio_buffer, incoming_audio))
+
+        # Check if buffer has enough samples
+        min_samples = int(sample_rate * 0.032)  # 0.032 seconds worth of audio
+        if len(self.audio_buffer) >= min_samples:
+            # Process the buffered audio
+            audio_tensor = torch.tensor(
+                [self.audio_buffer[:min_samples]], dtype=torch.float32, device="cpu"
+            )
+            voice_prob = self.vad_model(audio_tensor, sr=sample_rate)
+            self.logger.debug(f"voice probability: {voice_prob[0]}")
+            if voice_prob[0] > 0.3:
+                self.logger.debug(
+                    f"==================interrupting the conversation: {voice_prob[0]}"
+                )
+                self.broadcast_interrupt()
+
+            # Remove the processed samples from the buffer
+            self.audio_buffer = self.audio_buffer[min_samples:]
 
     async def start(self, mark_ready: Optional[Callable[[], Awaitable[None]]] = None):
         self.transcriber.start()
@@ -558,6 +595,7 @@ class StreamingConversation(Generic[OutputDeviceType]):
         self.transcriptions_worker.consume_nonblocking(transcription)
 
     def receive_audio(self, chunk: bytes):
+        self.logger.debug(f"received audio chunk of size {len(chunk)}")
         self.transcriber.send_audio(chunk)
 
     def warmup_synthesizer(self):
