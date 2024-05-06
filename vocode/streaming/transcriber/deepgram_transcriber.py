@@ -200,66 +200,77 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                 while not self._ended:
                     try:
                         msg = await ws.recv()
+                        data = json.loads(msg)
+                        if not data.get(
+                            "is_final", True
+                        ):  # If 'is_final' field is missing, assume end of transcriptions
+                            break
+                        cur_max_latency = self.audio_cursor - transcript_cursor
+                        transcript_cursor = data["start"] + data["duration"]
+                        cur_min_latency = self.audio_cursor - transcript_cursor
+
+                        # Record the latencies and duration
+                        avg_latency_hist.record(
+                            (cur_min_latency + cur_max_latency) / 2 * data["duration"]
+                        )
+                        duration_hist.record(data["duration"])
+                        max_latency_hist.record(cur_max_latency)
+                        min_latency_hist.record(max(cur_min_latency, 0))
+
+                        is_final = data["is_final"]
+                        vad_active = data.get("vad", {}).get(
+                            "active", False
+                        )  # Fetch VAD status
+
+                        if vad_active:
+                            self.broadcast_interrupt()  # Broadcast interruption based on VAD
+
+                        top_choice = data["channel"]["alternatives"][0]
+                        confidence = top_choice["confidence"]
+
+                        if top_choice["transcript"] and confidence > 0.0 and is_final:
+                            buffer = f"{buffer} {top_choice['transcript']}"
+                            if buffer_avg_confidence == 0:
+                                buffer_avg_confidence = confidence
+                            else:
+                                buffer_avg_confidence = (
+                                    buffer_avg_confidence
+                                    + confidence / num_buffer_utterances
+                                ) * (
+                                    num_buffer_utterances / (num_buffer_utterances + 1)
+                                )
+                            num_buffer_utterances += 1
+
+                        # Determine if the transcription event is final
+                        speech_final = self.is_speech_final(buffer, data, time_silent)
+                        if speech_final:
+                            self.output_queue.put_nowait(
+                                Transcription(
+                                    message=buffer,
+                                    confidence=buffer_avg_confidence,
+                                    is_final=True,
+                                    vad_active=vad_active,
+                                )
+                            )
+                            buffer = ""
+                            buffer_avg_confidence = 0
+                            num_buffer_utterances = 1
+                            time_silent = 0
+                        elif top_choice["transcript"] and confidence > 0.0:
+                            self.output_queue.put_nowait(
+                                Transcription(
+                                    message=buffer,
+                                    confidence=confidence,
+                                    is_final=False,
+                                    vad_active=vad_active,
+                                )
+                            )
+                            time_silent = self.calculate_time_silent(data)
+                        else:
+                            time_silent += data["duration"]
                     except Exception as e:
                         self.logger.debug(f"Got error {e} in Deepgram receiver")
                         break
-                    data = json.loads(msg)
-                    if (
-                        not "is_final" in data
-                    ):  # means we've finished receiving transcriptions
-                        break
-                    cur_max_latency = self.audio_cursor - transcript_cursor
-                    transcript_cursor = data["start"] + data["duration"]
-                    cur_min_latency = self.audio_cursor - transcript_cursor
-
-                    avg_latency_hist.record(
-                        (cur_min_latency + cur_max_latency) / 2 * data["duration"]
-                    )
-                    duration_hist.record(data["duration"])
-
-                    # Log max and min latencies
-                    max_latency_hist.record(cur_max_latency)
-                    min_latency_hist.record(max(cur_min_latency, 0))
-
-                    is_final = data["is_final"]
-                    speech_final = self.is_speech_final(buffer, data, time_silent)
-                    top_choice = data["channel"]["alternatives"][0]
-                    confidence = top_choice["confidence"]
-
-                    if top_choice["transcript"] and confidence > 0.0 and is_final:
-                        buffer = f"{buffer} {top_choice['transcript']}"
-                        if buffer_avg_confidence == 0:
-                            buffer_avg_confidence = confidence
-                        else:
-                            buffer_avg_confidence = (
-                                buffer_avg_confidence
-                                + confidence / (num_buffer_utterances)
-                            ) * (num_buffer_utterances / (num_buffer_utterances + 1))
-                        num_buffer_utterances += 1
-
-                    if speech_final:
-                        self.output_queue.put_nowait(
-                            Transcription(
-                                message=buffer,
-                                confidence=buffer_avg_confidence,
-                                is_final=True,
-                            )
-                        )
-                        buffer = ""
-                        buffer_avg_confidence = 0
-                        num_buffer_utterances = 1
-                        time_silent = 0
-                    elif top_choice["transcript"] and confidence > 0.0:
-                        self.output_queue.put_nowait(
-                            Transcription(
-                                message=buffer,
-                                confidence=confidence,
-                                is_final=False,
-                            )
-                        )
-                        time_silent = self.calculate_time_silent(data)
-                    else:
-                        time_silent += data["duration"]
                 self.logger.debug("Terminating Deepgram transcriber receiver")
 
             await asyncio.gather(sender(ws), receiver(ws))
