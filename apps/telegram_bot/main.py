@@ -1,32 +1,31 @@
+import inspect
 import io
+import logging
 import os
 import pickle
-import logging
-import inspect
 from collections import defaultdict
-from pydantic import BaseModel
-from typing import Tuple, Union, Optional, Dict, Type, List
+from typing import Dict, List, Optional, Tuple, Type, Union
+
+from dotenv import load_dotenv
+from pydantic.v1 import BaseModel
 from pydub import AudioSegment
 from telegram import Update
-from telegram.ext import (
-    ApplicationBuilder,
-    ContextTypes,
-    CommandHandler,
-    MessageHandler,
-    filters,
-)
-from vocode.turn_based.transcriber import WhisperTranscriber, BaseTranscriber
-from vocode.turn_based.agent import ChatGPTAgent, BaseAgent
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
+
+from vocode.turn_based.agent import BaseAgent, ChatGPTAgent
 from vocode.turn_based.synthesizer import (
+    AzureSynthesizer,
+    BaseSynthesizer,
     CoquiSynthesizer,
-    StreamElementsSynthesizer,
+    CoquiTTSSynthesizer,
     ElevenLabsSynthesizer,
     PlayHtSynthesizer,
-    AzureSynthesizer,
-    CoquiTTSSynthesizer,
     RimeSynthesizer,
-    BaseSynthesizer,
+    StreamElementsSynthesizer,
 )
+from vocode.turn_based.transcriber import BaseTranscriber, WhisperTranscriber
+
+load_dotenv()
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -46,7 +45,7 @@ supported_classes = [
 # Required environment variables containing API key: OPENAI_API_KEY, TELEGRAM_BOT_KEY, and your Vocode synthesizers classes corresponding API key variable
 
 # Your chosen synthesizer provider's corresponding Vocode turn_based class instance
-SYNTH = CoquiSynthesizer(use_xtts=True)
+SYNTH = AzureSynthesizer(voice_name="en-US-SteffanNeural")
 
 # Instructions to the language model responsible for generating response transcript.
 SYSTEM_PROMPT = "You are having a voice-to-voice conversation with a user. Always pretend you are a real human. Do not avoid or decline to answer questions because you are not human."
@@ -66,9 +65,7 @@ assert set(voice_attr_of.keys()) == set(
     supported_classes
 ), "supported_classes must match the keys of voice_attr_of!"
 
-assert (
-    type(SYNTH) in voice_attr_of.keys()
-), "Synthesizer class must be one of the supported ones!"
+assert type(SYNTH) in voice_attr_of.keys(), "Synthesizer class must be one of the supported ones!"
 # Check voice_attr_of is correct by asserting all classes have their corresponding value as a parameter in the init function
 for key, value in voice_attr_of.items():
     assert value in inspect.signature(key.__init__).parameters
@@ -76,18 +73,20 @@ for key, value in voice_attr_of.items():
 
 # Define a Voice model with id, name and description fields
 class Voice(BaseModel):
-  id: Optional[str] = None # Optional id for the voice
-  name: Optional[str] = None # Optional name for the voice
-  description: Optional[str] = None # Optional description for the voice
+    id: Optional[str] = None  # Optional id for the voice
+    name: Optional[str] = None  # Optional name for the voice
+    description: Optional[str] = None  # Optional description for the voice
+
 
 # Array of tuples (synthesizer's voice id, nickname, description if text to voice)
 DEFAULT_VOICES: List[Voice] = [Voice(id=None, name="Coqui Default", description=None)]
 
+
 # Define a Chat model with voices, current_voice and current_conversation fields
 class Chat(BaseModel):
-    voices: List[Voice] = DEFAULT_VOICES # List of available voices for the chat
-    current_voice: Voice = DEFAULT_VOICES[0] # Current voice for the chat
-    current_conversation: Optional[bytes] = None # Current conversation as a pickled object
+    voices: List[Voice] = DEFAULT_VOICES  # List of available voices for the chat
+    current_voice: Voice = DEFAULT_VOICES[0]  # Current voice for the chat
+    current_conversation: Optional[bytes] = None  # Current conversation as a pickled object
 
 
 class VocodeBotResponder:
@@ -95,13 +94,12 @@ class VocodeBotResponder:
         self,
         transcriber: BaseTranscriber,
         system_prompt: str,
-        synthesizer: BaseSynthesizer
+        synthesizer: BaseSynthesizer,
     ) -> None:
         self.transcriber = transcriber
         self.system_prompt = system_prompt
         self.synthesizer = synthesizer
         self.db: Dict[int, Chat] = defaultdict(Chat)
-
 
     def get_agent(self, chat_id: int) -> ChatGPTAgent:
         # Get current voice name and description from DB
@@ -148,7 +146,8 @@ class VocodeBotResponder:
             setattr(self.synthesizer, voice_attr_of[type(self.synthesizer)], voice_id)
 
         # Synthesize response
-        synth_response = await self.synthesizer.async_synthesize(agent_response)
+        # TODO make async
+        synth_response = self.synthesizer.synthesize(agent_response)
 
         # Save conversation to DB
         self.db[chat_id].current_conversation = pickle.dumps(agent.memory)
@@ -171,9 +170,7 @@ I'm a voice chatbot, send a voice message to me and I'll send one back!" Use /he
         chat_id = update.effective_chat.id
         # Accept text or voice messages
         if update.message and update.message.voice:
-            user_telegram_voice = await context.bot.get_file(
-                update.message.voice.file_id
-            )
+            user_telegram_voice = await context.bot.get_file(update.message.voice.file_id)
             bytes = await user_telegram_voice.download_as_bytearray()
             # convert audio bytes to numpy array
             input = AudioSegment.from_file(
@@ -194,9 +191,7 @@ Sorry, I only respond to commands, voice, or text messages. Use /help for more i
         agent_response, synth_response = await self.get_response(int(chat_id), input)
         out_voice = io.BytesIO()
         synth_response.export(out_f=out_voice, format="ogg", codec="libopus")  # type: ignore
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id, text=agent_response
-        )
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=agent_response)
         await context.bot.send_voice(chat_id=str(chat_id), voice=out_voice)
 
     async def handle_telegram_select_voice(
@@ -223,9 +218,7 @@ Sorry, I only respond to commands, voice, or text messages. Use /help for more i
             self.db[chat_id].current_voice = user_voices[new_voice_id]
             # Reset conversation
             self.db[chat_id].current_conversation = None
-            await context.bot.send_message(
-                chat_id=chat_id, text="Voice changed successfully!"
-            )
+            await context.bot.send_message(chat_id=chat_id, text="Voice changed successfully!")
 
     async def handle_telegram_create_voice(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -254,9 +247,7 @@ Sorry, I only respond to commands, voice, or text messages. Use /help for more i
         # Reset conversation
         self.db[chat_id].current_conversation = None
 
-        await context.bot.send_message(
-            chat_id=chat_id, text="Voice changed successfully!"
-        )
+        await context.bot.send_message(chat_id=chat_id, text="Voice changed successfully!")
 
     async def handle_telegram_list_voices(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -275,9 +266,7 @@ Sorry, I only respond to commands, voice, or text messages. Use /help for more i
             chat_id=chat_id, text=f"Available voices:\n{voices_formatted}"
         )
 
-    async def handle_telegram_who(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> None:
+    async def handle_telegram_who(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         assert update.effective_chat, "Chat must be defined!"
         chat_id = update.effective_chat.id
         current_voice = self.db[chat_id].current_voice
@@ -302,7 +291,7 @@ I'm a voice chatbot, here to talk with you! Here's what you can do:
 - Use /help to see this help message again.
 """
         assert update.effective_chat, "Chat must be defined!"
-        if isinstance(self.synthesizer, CoquiSynthesizer): 
+        if isinstance(self.synthesizer, CoquiSynthesizer):
             help_text += "\n- Use /create <voice_description> to create a new Coqui voice from a text prompt and switch to it."
         await context.bot.send_message(chat_id=update.effective_chat.id, text=help_text)
 
@@ -322,15 +311,11 @@ if __name__ == "__main__":
     voco = VocodeBotResponder(transcriber, SYSTEM_PROMPT, SYNTH)
     application = ApplicationBuilder().token(os.environ["TELEGRAM_BOT_KEY"]).build()
     application.add_handler(CommandHandler("start", voco.handle_telegram_start))
-    application.add_handler(
-        MessageHandler(~filters.COMMAND, voco.handle_telegram_message)
-    )
+    application.add_handler(MessageHandler(~filters.COMMAND, voco.handle_telegram_message))
     application.add_handler(CommandHandler("create", voco.handle_telegram_create_voice))
     application.add_handler(CommandHandler("voice", voco.handle_telegram_select_voice))
     application.add_handler(CommandHandler("list", voco.handle_telegram_list_voices))
     application.add_handler(CommandHandler("who", voco.handle_telegram_who))
     application.add_handler(CommandHandler("help", voco.handle_telegram_help))
-    application.add_handler(
-        MessageHandler(filters.COMMAND, voco.handle_telegram_unknown_cmd)
-    )
+    application.add_handler(MessageHandler(filters.COMMAND, voco.handle_telegram_unknown_cmd))
     application.run_polling()

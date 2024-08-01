@@ -32,6 +32,22 @@
             "schema": { "type": "integer", "title": "Size", "default": 10 },
             "name": "size",
             "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "type": "string", "title": "Sort Column" },
+            "name": "sort_column",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Sort Desc",
+              "default": false
+            },
+            "name": "sort_desc",
+            "in": "query"
           }
         ],
         "responses": {
@@ -257,6 +273,22 @@
             "schema": { "type": "integer", "title": "Size", "default": 10 },
             "name": "size",
             "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "type": "string", "title": "Sort Column" },
+            "name": "sort_column",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Sort Desc",
+              "default": false
+            },
+            "name": "sort_desc",
+            "in": "query"
           }
         ],
         "responses": {
@@ -481,6 +513,22 @@
             "schema": { "type": "integer", "title": "Size", "default": 10 },
             "name": "size",
             "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "type": "string", "title": "Sort Column" },
+            "name": "sort_column",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Sort Desc",
+              "default": false
+            },
+            "name": "sort_desc",
+            "in": "query"
           }
         ],
         "responses": {
@@ -633,6 +681,22 @@
             "schema": { "type": "integer", "title": "Size", "default": 10 },
             "name": "size",
             "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "type": "string", "title": "Sort Column" },
+            "name": "sort_column",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Sort Desc",
+              "default": false
+            },
+            "name": "sort_desc",
+            "in": "query"
           }
         ],
         "responses": {
@@ -782,6 +846,22 @@
             "required": false,
             "schema": { "type": "integer", "title": "Size", "default": 10 },
             "name": "size",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "type": "string", "title": "Sort Column" },
+            "name": "sort_column",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Sort Desc",
+              "default": false
+            },
+            "name": "sort_desc",
             "in": "query"
           }
         ],
@@ -935,6 +1015,22 @@
             "schema": { "type": "integer", "title": "Size", "default": 10 },
             "name": "size",
             "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "type": "string", "title": "Sort Column" },
+            "name": "sort_column",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Sort Desc",
+              "default": false
+            },
+            "name": "sort_desc",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1084,6 +1180,22 @@
             "required": false,
             "schema": { "type": "integer", "title": "Size", "default": 10 },
             "name": "size",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "type": "string", "title": "Sort Column" },
+            "name": "sort_column",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Sort Desc",
+              "default": false
+            },
+            "name": "sort_desc",
             "in": "query"
           }
         ],
@@ -1236,6 +1348,22 @@
             "required": false,
             "schema": { "type": "integer", "title": "Size", "default": 10 },
             "name": "size",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "type": "string", "title": "Sort Column" },
+            "name": "sort_column",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Sort Desc",
+              "default": false
+            },
+            "name": "sort_desc",
             "in": "query"
           }
         ],
@@ -1397,6 +1525,22 @@
             "schema": { "type": "integer", "title": "Size", "default": 10 },
             "name": "size",
             "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "type": "string", "title": "Sort Column" },
+            "name": "sort_column",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Sort Desc",
+              "default": false
+            },
+            "name": "sort_desc",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1505,6 +1649,85 @@
         },
         "security": [{ "HTTPBearer": [] }]
       }
+    },
+    "/v1/account_connections/add_to_steering_pool": {
+      "post": {
+        "tags": ["account_connections"],
+        "summary": "Add To Steering Pool",
+        "operationId": "add_to_steering_pool",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Id" },
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddToSteeringPoolRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/v1/account_connections/remove_from_steering_pool": {
+      "post": {
+        "tags": ["account_connections"],
+        "summary": "Remove From Steering Pool",
+        "operationId": "remove_from_steering_pool",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Id" },
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveFromSteeringPoolRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
     }
   },
   "components": {
@@ -1530,10 +1753,22 @@
           },
           "page": { "type": "integer", "title": "Page" },
           "size": { "type": "integer", "title": "Size" },
-          "has_more": { "type": "boolean", "title": "Has More" }
+          "has_more": { "type": "boolean", "title": "Has More" },
+          "total": { "type": "integer", "title": "Total" },
+          "total_is_estimated": {
+            "type": "boolean",
+            "title": "Total Is Estimated"
+          }
         },
         "type": "object",
-        "required": ["items", "page", "size", "has_more"],
+        "required": [
+          "items",
+          "page",
+          "size",
+          "has_more",
+          "total",
+          "total_is_estimated"
+        ],
         "title": "AccountConnectionPage"
       },
       "AccountConnectionParamsRequest": {
@@ -1589,7 +1824,8 @@
                 { "$ref": "#/components/schemas/EndConversationAction" },
                 { "$ref": "#/components/schemas/DTMFAction" },
                 { "$ref": "#/components/schemas/AddToConferenceAction" },
-                { "$ref": "#/components/schemas/SetHoldAction" }
+                { "$ref": "#/components/schemas/SetHoldAction" },
+                { "$ref": "#/components/schemas/ExternalAction" }
               ],
               "discriminator": {
                 "propertyName": "type",
@@ -1598,7 +1834,8 @@
                   "action_end_conversation": "#/components/schemas/EndConversationAction",
                   "action_dtmf": "#/components/schemas/DTMFAction",
                   "action_add_to_conference": "#/components/schemas/AddToConferenceAction",
-                  "action_set_hold": "#/components/schemas/SetHoldAction"
+                  "action_set_hold": "#/components/schemas/SetHoldAction",
+                  "action_external": "#/components/schemas/ExternalAction"
                 }
               }
             },
@@ -1607,10 +1844,22 @@
           },
           "page": { "type": "integer", "title": "Page" },
           "size": { "type": "integer", "title": "Size" },
-          "has_more": { "type": "boolean", "title": "Has More" }
+          "has_more": { "type": "boolean", "title": "Has More" },
+          "total": { "type": "integer", "title": "Total" },
+          "total_is_estimated": {
+            "type": "boolean",
+            "title": "Total Is Estimated"
+          }
         },
         "type": "object",
-        "required": ["items", "page", "size", "has_more"],
+        "required": [
+          "items",
+          "page",
+          "size",
+          "has_more",
+          "total",
+          "total_is_estimated"
+        ],
         "title": "ActionPage"
       },
       "ActionParamsRequest": {
@@ -1619,7 +1868,8 @@
           { "$ref": "#/components/schemas/EndConversationActionParams" },
           { "$ref": "#/components/schemas/DTMFActionParams" },
           { "$ref": "#/components/schemas/AddToConferenceActionParams" },
-          { "$ref": "#/components/schemas/SetHoldActionParams" }
+          { "$ref": "#/components/schemas/SetHoldActionParams" },
+          { "$ref": "#/components/schemas/ExternalActionParams" }
         ],
         "title": "ActionParamsRequest",
         "discriminator": {
@@ -1629,7 +1879,8 @@
             "action_end_conversation": "#/components/schemas/EndConversationActionParams",
             "action_dtmf": "#/components/schemas/DTMFActionParams",
             "action_add_to_conference": "#/components/schemas/AddToConferenceActionParams",
-            "action_set_hold": "#/components/schemas/SetHoldActionParams"
+            "action_set_hold": "#/components/schemas/SetHoldActionParams",
+            "action_external": "#/components/schemas/ExternalActionParams"
           }
         }
       },
@@ -1639,7 +1890,8 @@
           { "$ref": "#/components/schemas/EndConversationAction" },
           { "$ref": "#/components/schemas/DTMFAction" },
           { "$ref": "#/components/schemas/AddToConferenceAction" },
-          { "$ref": "#/components/schemas/SetHoldAction" }
+          { "$ref": "#/components/schemas/SetHoldAction" },
+          { "$ref": "#/components/schemas/ExternalAction" }
         ],
         "title": "ActionResponseModel",
         "discriminator": {
@@ -1649,7 +1901,8 @@
             "action_end_conversation": "#/components/schemas/EndConversationAction",
             "action_dtmf": "#/components/schemas/DTMFAction",
             "action_add_to_conference": "#/components/schemas/AddToConferenceAction",
-            "action_set_hold": "#/components/schemas/SetHoldAction"
+            "action_set_hold": "#/components/schemas/SetHoldAction",
+            "action_external": "#/components/schemas/ExternalAction"
           }
         }
       },
@@ -1659,7 +1912,8 @@
           { "$ref": "#/components/schemas/EndConversationActionUpdateParams" },
           { "$ref": "#/components/schemas/DTMFActionUpdateParams" },
           { "$ref": "#/components/schemas/AddToConferenceActionUpdateParams" },
-          { "$ref": "#/components/schemas/SetHoldActionUpdateParams" }
+          { "$ref": "#/components/schemas/SetHoldActionUpdateParams" },
+          { "$ref": "#/components/schemas/ExternalActionUpdateParams" }
         ],
         "title": "ActionUpdateParamsRequest",
         "discriminator": {
@@ -1669,7 +1923,8 @@
             "action_end_conversation": "#/components/schemas/EndConversationActionUpdateParams",
             "action_dtmf": "#/components/schemas/DTMFActionUpdateParams",
             "action_add_to_conference": "#/components/schemas/AddToConferenceActionUpdateParams",
-            "action_set_hold": "#/components/schemas/SetHoldActionUpdateParams"
+            "action_set_hold": "#/components/schemas/SetHoldActionUpdateParams",
+            "action_external": "#/components/schemas/ExternalActionUpdateParams"
           }
         }
       },
@@ -1776,10 +2031,19 @@
         "required": ["phone_number"],
         "title": "AddToConferenceConfig"
       },
+      "AddToSteeringPoolRequest": {
+        "properties": {
+          "phone_number": { "type": "string", "title": "Phone Number" }
+        },
+        "type": "object",
+        "required": ["phone_number"],
+        "title": "AddToSteeringPoolRequest"
+      },
       "Agent": {
         "properties": {
           "id": { "type": "string", "format": "uuid", "title": "Id" },
           "user_id": { "type": "string", "format": "uuid", "title": "User Id" },
+          "name": { "type": "string", "title": "Name" },
           "prompt": { "$ref": "#/components/schemas/Prompt" },
           "language": {
             "allOf": [{ "$ref": "#/components/schemas/Language" }],
@@ -1792,7 +2056,8 @@
                 { "$ref": "#/components/schemas/EndConversationAction" },
                 { "$ref": "#/components/schemas/DTMFAction" },
                 { "$ref": "#/components/schemas/AddToConferenceAction" },
-                { "$ref": "#/components/schemas/SetHoldAction" }
+                { "$ref": "#/components/schemas/SetHoldAction" },
+                { "$ref": "#/components/schemas/ExternalAction" }
               ],
               "discriminator": {
                 "propertyName": "type",
@@ -1801,7 +2066,8 @@
                   "action_end_conversation": "#/components/schemas/EndConversationAction",
                   "action_dtmf": "#/components/schemas/DTMFAction",
                   "action_add_to_conference": "#/components/schemas/AddToConferenceAction",
-                  "action_set_hold": "#/components/schemas/SetHoldAction"
+                  "action_set_hold": "#/components/schemas/SetHoldAction",
+                  "action_external": "#/components/schemas/ExternalAction"
                 }
               }
             },
@@ -1879,6 +2145,11 @@
             "type": "boolean",
             "title": "Run Do Not Call Detection",
             "default": false
+          },
+          "llm_temperature": {
+            "type": "number",
+            "title": "Llm Temperature",
+            "default": 0.0
           }
         },
         "type": "object",
@@ -1894,14 +2165,27 @@
           },
           "page": { "type": "integer", "title": "Page" },
           "size": { "type": "integer", "title": "Size" },
-          "has_more": { "type": "boolean", "title": "Has More" }
+          "has_more": { "type": "boolean", "title": "Has More" },
+          "total": { "type": "integer", "title": "Total" },
+          "total_is_estimated": {
+            "type": "boolean",
+            "title": "Total Is Estimated"
+          }
         },
         "type": "object",
-        "required": ["items", "page", "size", "has_more"],
+        "required": [
+          "items",
+          "page",
+          "size",
+          "has_more",
+          "total",
+          "total_is_estimated"
+        ],
         "title": "AgentPage"
       },
       "AgentParams": {
         "properties": {
+          "name": { "type": "string", "title": "Name" },
           "prompt": {
             "anyOf": [
               { "type": "string", "format": "uuid" },
@@ -1927,7 +2211,8 @@
                     {
                       "$ref": "#/components/schemas/AddToConferenceActionParams"
                     },
-                    { "$ref": "#/components/schemas/SetHoldActionParams" }
+                    { "$ref": "#/components/schemas/SetHoldActionParams" },
+                    { "$ref": "#/components/schemas/ExternalActionParams" }
                   ]
                 }
               ]
@@ -2017,6 +2302,11 @@
             "type": "boolean",
             "title": "Run Do Not Call Detection",
             "default": false
+          },
+          "llm_temperature": {
+            "type": "number",
+            "title": "Llm Temperature",
+            "default": 0.0
           }
         },
         "type": "object",
@@ -2025,6 +2315,13 @@
       },
       "AgentUpdateParams": {
         "properties": {
+          "name": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Name"
+          },
           "prompt": {
             "anyOf": [
               { "type": "string", "format": "uuid" },
@@ -2062,6 +2359,9 @@
                         },
                         {
                           "$ref": "#/components/schemas/SetHoldActionUpdateParams"
+                        },
+                        {
+                          "$ref": "#/components/schemas/ExternalActionUpdateParams"
                         }
                       ]
                     }
@@ -2319,12 +2619,20 @@
             "type": "string",
             "enum": [
               "human_unanswered",
+              "call_did_not_connect",
               "human_disconnected",
               "bot_disconnected",
               "transfer_unanswered",
               "transfer_disconnected"
             ],
             "title": "Stage Outcome"
+          },
+          "telephony_metadata": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/VonageTelephonyMetadata" },
+              { "$ref": "#/components/schemas/TwilioTelephonyMetadata" }
+            ],
+            "title": "Telephony Metadata"
           },
           "to_number": { "type": "string", "title": "To Number" },
           "from_number": { "type": "string", "title": "From Number" },
@@ -2369,6 +2677,11 @@
           },
           "telephony_account_connection": {
             "$ref": "#/components/schemas/TwilioAccountConnection"
+          },
+          "telephony_params": {
+            "additionalProperties": { "type": "string" },
+            "type": "object",
+            "title": "Telephony Params"
           }
         },
         "type": "object",
@@ -2392,10 +2705,22 @@
           },
           "page": { "type": "integer", "title": "Page" },
           "size": { "type": "integer", "title": "Size" },
-          "has_more": { "type": "boolean", "title": "Has More" }
+          "has_more": { "type": "boolean", "title": "Has More" },
+          "total": { "type": "integer", "title": "Total" },
+          "total_is_estimated": {
+            "type": "boolean",
+            "title": "Total Is Estimated"
+          }
         },
         "type": "object",
-        "required": ["items", "page", "size", "has_more"],
+        "required": [
+          "items",
+          "page",
+          "size",
+          "has_more",
+          "total",
+          "total_is_estimated"
+        ],
         "title": "CallPage"
       },
       "CallStatus": {
@@ -2421,6 +2746,7 @@
       },
       "CreateCallAgentParams": {
         "properties": {
+          "name": { "type": "string", "title": "Name" },
           "prompt": {
             "anyOf": [
               { "type": "string", "format": "uuid" },
@@ -2446,7 +2772,8 @@
                     {
                       "$ref": "#/components/schemas/AddToConferenceActionParams"
                     },
-                    { "$ref": "#/components/schemas/SetHoldActionParams" }
+                    { "$ref": "#/components/schemas/SetHoldActionParams" },
+                    { "$ref": "#/components/schemas/ExternalActionParams" }
                   ]
                 }
               ]
@@ -2536,6 +2863,11 @@
             "type": "boolean",
             "title": "Run Do Not Call Detection",
             "default": false
+          },
+          "llm_temperature": {
+            "type": "number",
+            "title": "Llm Temperature",
+            "default": 0.0
           }
         },
         "type": "object",
@@ -2572,6 +2904,11 @@
             "additionalProperties": { "type": "string" },
             "type": "object",
             "title": "Context"
+          },
+          "telephony_params": {
+            "additionalProperties": { "type": "string" },
+            "type": "object",
+            "title": "Telephony Params"
           }
         },
         "type": "object",
@@ -2685,7 +3022,12 @@
             "type": "integer",
             "title": "Optimize Streaming Latency"
           },
-          "model_id": { "type": "string", "title": "Model Id" }
+          "model_id": { "type": "string", "title": "Model Id" },
+          "experimental_input_streaming": {
+            "type": "boolean",
+            "title": "Experimental Input Streaming",
+            "default": false
+          }
         },
         "type": "object",
         "required": ["id", "user_id", "type", "voice_id"],
@@ -2706,7 +3048,12 @@
             "type": "integer",
             "title": "Optimize Streaming Latency"
           },
-          "model_id": { "type": "string", "title": "Model Id" }
+          "model_id": { "type": "string", "title": "Model Id" },
+          "experimental_input_streaming": {
+            "type": "boolean",
+            "title": "Experimental Input Streaming",
+            "default": false
+          }
         },
         "type": "object",
         "required": ["type", "voice_id"],
@@ -2760,6 +3107,13 @@
               { "$ref": "#/components/schemas/Undefined" }
             ],
             "title": "Model Id"
+          },
+          "experimental_input_streaming": {
+            "anyOf": [
+              { "type": "boolean" },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Experimental Input Streaming"
           }
         },
         "type": "object",
@@ -2868,12 +3222,129 @@
           "event_action",
           "event_phone_call_connected",
           "event_phone_call_ended",
+          "event_phone_call_did_not_connect",
           "event_transcript",
           "event_recording",
           "event_human_detection"
         ],
         "title": "EventType",
         "description": "An enumeration."
+      },
+      "ExternalAction": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "user_id": { "type": "string", "format": "uuid", "title": "User Id" },
+          "type": {
+            "type": "string",
+            "enum": ["action_external"],
+            "title": "Type"
+          },
+          "config": { "$ref": "#/components/schemas/ExternalActionConfig" },
+          "action_trigger": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/FunctionCallActionTrigger" },
+              { "$ref": "#/components/schemas/PhraseBasedActionTrigger" }
+            ],
+            "title": "Action Trigger",
+            "default": { "type": "action_trigger_function_call", "config": {} },
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "action_trigger_function_call": "#/components/schemas/FunctionCallActionTrigger",
+                "action_trigger_phrase_based": "#/components/schemas/PhraseBasedActionTrigger"
+              }
+            }
+          }
+        },
+        "type": "object",
+        "required": ["id", "user_id", "type", "config"],
+        "title": "ExternalAction"
+      },
+      "ExternalActionConfig": {
+        "properties": {
+          "processing_mode": {
+            "type": "string",
+            "enum": ["muted"],
+            "title": "Processing Mode",
+            "default": "muted"
+          },
+          "name": { "type": "string", "title": "Name" },
+          "description": { "type": "string", "title": "Description" },
+          "url": { "type": "string", "title": "Url" },
+          "input_schema": { "type": "object", "title": "Input Schema" },
+          "speak_on_send": { "type": "boolean", "title": "Speak On Send" },
+          "speak_on_receive": { "type": "boolean", "title": "Speak On Receive" }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "url",
+          "input_schema",
+          "speak_on_send",
+          "speak_on_receive"
+        ],
+        "title": "ExternalActionConfig"
+      },
+      "ExternalActionParams": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["action_external"],
+            "title": "Type"
+          },
+          "config": { "$ref": "#/components/schemas/ExternalActionConfig" },
+          "action_trigger": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/FunctionCallActionTrigger" },
+              { "$ref": "#/components/schemas/PhraseBasedActionTrigger" }
+            ],
+            "title": "Action Trigger",
+            "default": { "type": "action_trigger_function_call", "config": {} },
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "action_trigger_function_call": "#/components/schemas/FunctionCallActionTrigger",
+                "action_trigger_phrase_based": "#/components/schemas/PhraseBasedActionTrigger"
+              }
+            }
+          }
+        },
+        "type": "object",
+        "required": ["type", "config"],
+        "title": "ExternalActionParams"
+      },
+      "ExternalActionUpdateParams": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["action_external"],
+            "title": "Type"
+          },
+          "config": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/ExternalActionConfig" },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Config"
+          },
+          "action_trigger": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  { "$ref": "#/components/schemas/FunctionCallActionTrigger" },
+                  { "$ref": "#/components/schemas/PhraseBasedActionTrigger" }
+                ]
+              },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Action Trigger",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": ["type"],
+        "title": "ExternalActionUpdateParams"
       },
       "FunctionCallActionTrigger": {
         "properties": {
@@ -2958,6 +3429,7 @@
         "properties": {
           "id": { "type": "string", "format": "uuid", "title": "Id" },
           "user_id": { "type": "string", "format": "uuid", "title": "User Id" },
+          "name": { "type": "string", "title": "Name" },
           "prompt": {
             "anyOf": [
               { "type": "string", "format": "uuid" },
@@ -3036,6 +3508,11 @@
             "type": "boolean",
             "title": "Run Do Not Call Detection",
             "default": false
+          },
+          "llm_temperature": {
+            "type": "number",
+            "title": "Llm Temperature",
+            "default": 0.0
           }
         },
         "type": "object",
@@ -3081,12 +3558,20 @@
             "type": "string",
             "enum": [
               "human_unanswered",
+              "call_did_not_connect",
               "human_disconnected",
               "bot_disconnected",
               "transfer_unanswered",
               "transfer_disconnected"
             ],
             "title": "Stage Outcome"
+          },
+          "telephony_metadata": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/VonageTelephonyMetadata" },
+              { "$ref": "#/components/schemas/TwilioTelephonyMetadata" }
+            ],
+            "title": "Telephony Metadata"
           },
           "to_number": { "type": "string", "title": "To Number" },
           "from_number": { "type": "string", "title": "From Number" },
@@ -3135,6 +3620,11 @@
               { "$ref": "#/components/schemas/TwilioAccountConnection" }
             ],
             "title": "Telephony Account Connection"
+          },
+          "telephony_params": {
+            "additionalProperties": { "type": "string" },
+            "type": "object",
+            "title": "Telephony Params"
           }
         },
         "type": "object",
@@ -3306,10 +3796,22 @@
           },
           "page": { "type": "integer", "title": "Page" },
           "size": { "type": "integer", "title": "Size" },
-          "has_more": { "type": "boolean", "title": "Has More" }
+          "has_more": { "type": "boolean", "title": "Has More" },
+          "total": { "type": "integer", "title": "Total" },
+          "total_is_estimated": {
+            "type": "boolean",
+            "title": "Total Is Estimated"
+          }
         },
         "type": "object",
-        "required": ["items", "page", "size", "has_more"],
+        "required": [
+          "items",
+          "page",
+          "size",
+          "has_more",
+          "total",
+          "total_is_estimated"
+        ],
         "title": "PhoneNumberPage"
       },
       "PhraseBasedActionTrigger": {
@@ -3462,7 +3964,15 @@
             "enum": ["faster", "draft", "low", "medium", "high", "premium"],
             "title": "Quality"
           },
-          "temperature": { "type": "number", "title": "Temperature" }
+          "temperature": { "type": "number", "title": "Temperature" },
+          "top_p": { "type": "number", "title": "Top P" },
+          "text_guidance": { "type": "number", "title": "Text Guidance" },
+          "voice_guidance": { "type": "number", "title": "Voice Guidance" },
+          "experimental_remove_silence": {
+            "type": "boolean",
+            "title": "Experimental Remove Silence",
+            "default": false
+          }
         },
         "type": "object",
         "required": ["id", "user_id", "type", "voice_id"],
@@ -3490,7 +4000,15 @@
             "enum": ["faster", "draft", "low", "medium", "high", "premium"],
             "title": "Quality"
           },
-          "temperature": { "type": "number", "title": "Temperature" }
+          "temperature": { "type": "number", "title": "Temperature" },
+          "top_p": { "type": "number", "title": "Top P" },
+          "text_guidance": { "type": "number", "title": "Text Guidance" },
+          "voice_guidance": { "type": "number", "title": "Voice Guidance" },
+          "experimental_remove_silence": {
+            "type": "boolean",
+            "title": "Experimental Remove Silence",
+            "default": false
+          }
         },
         "type": "object",
         "required": ["type", "voice_id"],
@@ -3554,6 +4072,34 @@
               { "$ref": "#/components/schemas/Undefined" }
             ],
             "title": "Temperature"
+          },
+          "top_p": {
+            "anyOf": [
+              { "type": "number" },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Top P"
+          },
+          "text_guidance": {
+            "anyOf": [
+              { "type": "number" },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Text Guidance"
+          },
+          "voice_guidance": {
+            "anyOf": [
+              { "type": "number" },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Voice Guidance"
+          },
+          "experimental_remove_silence": {
+            "anyOf": [
+              { "type": "boolean" },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Experimental Remove Silence"
           }
         },
         "type": "object",
@@ -3586,10 +4132,22 @@
           },
           "page": { "type": "integer", "title": "Page" },
           "size": { "type": "integer", "title": "Size" },
-          "has_more": { "type": "boolean", "title": "Has More" }
+          "has_more": { "type": "boolean", "title": "Has More" },
+          "total": { "type": "integer", "title": "Total" },
+          "total_is_estimated": {
+            "type": "boolean",
+            "title": "Total Is Estimated"
+          }
         },
         "type": "object",
-        "required": ["items", "page", "size", "has_more"],
+        "required": [
+          "items",
+          "page",
+          "size",
+          "has_more",
+          "total",
+          "total_is_estimated"
+        ],
         "title": "PromptPage"
       },
       "PromptParams": {
@@ -3665,13 +4223,28 @@
         "type": "object",
         "title": "PromptUpdateParams"
       },
+      "RemoveFromSteeringPoolRequest": {
+        "properties": {
+          "phone_number": { "type": "string", "title": "Phone Number" }
+        },
+        "type": "object",
+        "required": ["phone_number"],
+        "title": "RemoveFromSteeringPoolRequest"
+      },
       "RimeVoice": {
         "properties": {
           "id": { "type": "string", "format": "uuid", "title": "Id" },
           "user_id": { "type": "string", "format": "uuid", "title": "User Id" },
           "type": { "type": "string", "enum": ["voice_rime"], "title": "Type" },
           "speaker": { "type": "string", "title": "Speaker" },
-          "speed_alpha": { "type": "number", "title": "Speed Alpha" }
+          "speed_alpha": { "type": "number", "title": "Speed Alpha" },
+          "model_id": {
+            "anyOf": [
+              { "type": "string", "enum": ["mist", "v1"] },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Model Id"
+          }
         },
         "type": "object",
         "required": ["id", "user_id", "type", "speaker"],
@@ -3681,7 +4254,14 @@
         "properties": {
           "type": { "type": "string", "enum": ["voice_rime"], "title": "Type" },
           "speaker": { "type": "string", "title": "Speaker" },
-          "speed_alpha": { "type": "number", "title": "Speed Alpha" }
+          "speed_alpha": { "type": "number", "title": "Speed Alpha" },
+          "model_id": {
+            "anyOf": [
+              { "type": "string", "enum": ["mist", "v1"] },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Model Id"
+          }
         },
         "type": "object",
         "required": ["type", "speaker"],
@@ -3703,6 +4283,13 @@
               { "$ref": "#/components/schemas/Undefined" }
             ],
             "title": "Speed Alpha"
+          },
+          "model_id": {
+            "anyOf": [
+              { "type": "string", "enum": ["mist", "v1"] },
+              { "$ref": "#/components/schemas/Undefined" }
+            ],
+            "title": "Model Id"
           }
         },
         "type": "object",
@@ -3906,6 +4493,16 @@
             "type": "string",
             "enum": ["account_connection_twilio"],
             "title": "Type"
+          },
+          "steering_pool": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Steering Pool"
+          },
+          "account_supports_any_caller_id": {
+            "type": "boolean",
+            "title": "Account Supports Any Caller Id",
+            "default": false
           }
         },
         "type": "object",
@@ -3919,6 +4516,16 @@
             "type": "string",
             "enum": ["account_connection_twilio"],
             "title": "Type"
+          },
+          "steering_pool": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Steering Pool"
+          },
+          "account_supports_any_caller_id": {
+            "type": "boolean",
+            "title": "Account Supports Any Caller Id",
+            "default": false
           }
         },
         "type": "object",
@@ -3958,6 +4565,29 @@
         "type": "object",
         "required": ["twilio_account_sid", "twilio_auth_token"],
         "title": "TwilioCredentials"
+      },
+      "TwilioTelephonyMetadata": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["telephony_metadata_twilio"],
+            "title": "Type",
+            "default": "telephony_metadata_twilio"
+          },
+          "call_sid": { "type": "string", "title": "Call Sid" },
+          "call_status": { "type": "string", "title": "Call Status" },
+          "transfer_call_sid": {
+            "type": "string",
+            "title": "Transfer Call Sid"
+          },
+          "transfer_call_status": {
+            "type": "string",
+            "title": "Transfer Call Status"
+          },
+          "conference_sid": { "type": "string", "title": "Conference Sid" }
+        },
+        "type": "object",
+        "title": "TwilioTelephonyMetadata"
       },
       "Undefined": {
         "properties": {},
@@ -4043,10 +4673,22 @@
           },
           "page": { "type": "integer", "title": "Page" },
           "size": { "type": "integer", "title": "Size" },
-          "has_more": { "type": "boolean", "title": "Has More" }
+          "has_more": { "type": "boolean", "title": "Has More" },
+          "total": { "type": "integer", "title": "Total" },
+          "total_is_estimated": {
+            "type": "boolean",
+            "title": "Total Is Estimated"
+          }
         },
         "type": "object",
-        "required": ["items", "page", "size", "has_more"],
+        "required": [
+          "items",
+          "page",
+          "size",
+          "has_more",
+          "total",
+          "total_is_estimated"
+        ],
         "title": "VectorDatabasePage"
       },
       "VoicePage": {
@@ -4074,10 +4716,22 @@
           },
           "page": { "type": "integer", "title": "Page" },
           "size": { "type": "integer", "title": "Size" },
-          "has_more": { "type": "boolean", "title": "Has More" }
+          "has_more": { "type": "boolean", "title": "Has More" },
+          "total": { "type": "integer", "title": "Total" },
+          "total_is_estimated": {
+            "type": "boolean",
+            "title": "Total Is Estimated"
+          }
         },
         "type": "object",
-        "required": ["items", "page", "size", "has_more"],
+        "required": [
+          "items",
+          "page",
+          "size",
+          "has_more",
+          "total",
+          "total_is_estimated"
+        ],
         "title": "VoicePage"
       },
       "VoiceParamsRequest": {
@@ -4134,6 +4788,18 @@
           }
         }
       },
+      "VonageTelephonyMetadata": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["telephony_metadata_vonage"],
+            "title": "Type",
+            "default": "telephony_metadata_vonage"
+          }
+        },
+        "type": "object",
+        "title": "VonageTelephonyMetadata"
+      },
       "Webhook": {
         "properties": {
           "id": { "type": "string", "format": "uuid", "title": "Id" },
@@ -4161,10 +4827,22 @@
           },
           "page": { "type": "integer", "title": "Page" },
           "size": { "type": "integer", "title": "Size" },
-          "has_more": { "type": "boolean", "title": "Has More" }
+          "has_more": { "type": "boolean", "title": "Has More" },
+          "total": { "type": "integer", "title": "Total" },
+          "total_is_estimated": {
+            "type": "boolean",
+            "title": "Total Is Estimated"
+          }
         },
         "type": "object",
-        "required": ["items", "page", "size", "has_more"],
+        "required": [
+          "items",
+          "page",
+          "size",
+          "has_more",
+          "total",
+          "total_is_estimated"
+        ],
         "title": "WebhookPage"
       },
       "WebhookParams": {
