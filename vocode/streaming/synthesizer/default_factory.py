@@ -8,11 +8,13 @@ from vocode.streaming.models.synthesizer import (
     RimeSynthesizerConfig,
     StreamElementsSynthesizerConfig,
     SynthesizerConfig,
+    DeepgramSynthesizerConfig
 )
 from vocode.streaming.synthesizer.abstract_factory import AbstractSynthesizerFactory
 from vocode.streaming.synthesizer.azure_synthesizer import AzureSynthesizer
 from vocode.streaming.synthesizer.base_synthesizer import BaseSynthesizer
 from vocode.streaming.synthesizer.cartesia_synthesizer import CartesiaSynthesizer
+from vocode.streaming.synthesizer.deepgram_synthesizer import DeepgramSynthesizer
 from vocode.streaming.synthesizer.eleven_labs_synthesizer import ElevenLabsSynthesizer
 from vocode.streaming.synthesizer.eleven_labs_websocket_synthesizer import ElevenLabsWSSynthesizer
 from vocode.streaming.synthesizer.play_ht_synthesizer import PlayHtSynthesizer
@@ -44,5 +46,7 @@ class DefaultSynthesizerFactory(AbstractSynthesizerFactory):
             return RimeSynthesizer(synthesizer_config)
         elif isinstance(synthesizer_config, StreamElementsSynthesizerConfig):
             return StreamElementsSynthesizer(synthesizer_config)
+        elif isinstance(synthesizer_config, DeepgramSynthesizerConfig):
+            return DeepgramSynthesizer(synthesizer_config)
         else:
             raise Exception("Invalid synthesizer config")
