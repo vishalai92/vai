@@ -24,13 +24,9 @@ class DeepgramSynthesizer(BaseSynthesizer[DeepgramSynthesizerConfig]):
     def __init__(
         self,
         synthesizer_config: DeepgramSynthesizerConfig,
-        logger: Optional[logging.Logger] = None,
-        aiohttp_session: Optional[aiohttp.ClientSession] = None,
     ):
-        super().__init__(synthesizer_config, aiohttp_session)
-        self.api_key = synthesizer_config.api_key or getenv(
-            "DEEPGRAM_SYNTHESIZER_API_KEY"
-        )
+        super().__init__(synthesizer_config)
+        self.api_key = synthesizer_config.api_key or getenv("DEEPGRAM_SYNTHESIZER_API_KEY")
         self.model = synthesizer_config.model
 
     def get_request(self, text: str) -> Tuple[str, Dict[str, str], Dict[str, object]]:
