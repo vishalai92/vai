@@ -2,7 +2,7 @@ import base64
 import json
 import os
 from enum import Enum
-from typing import Optional
+from typing import Optional, Dict
 
 from fastapi import WebSocket
 from loguru import logger
@@ -26,6 +26,8 @@ from vocode.streaming.telephony.conversation.abstract_phone_conversation import 
 from vocode.streaming.transcriber.abstract_factory import AbstractTranscriberFactory
 from vocode.streaming.utils.events_manager import EventsManager
 from vocode.streaming.utils.state_manager import TwilioPhoneConversationStateManager
+import aiohttp
+import asyncio
 
 
 class TwilioPhoneConversationWebsocketAction(Enum):
@@ -55,6 +57,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
         record_call: bool = False,
         speed_coefficient: float = 1.0,
         noise_suppression: bool = False,  # is currently a no-op
+        telephony_params: Optional[Dict[str, str]] = None,
     ):
         super().__init__(
             direction=direction,
@@ -72,6 +75,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
             agent_factory=agent_factory,
             synthesizer_factory=synthesizer_factory,
             speed_coefficient=speed_coefficient,
+            telephony_params=telephony_params,
         )
         self.config_manager = config_manager
         self.twilio_config = twilio_config or TwilioConfig(
@@ -88,6 +92,9 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
         return TwilioPhoneConversationStateManager(self)
 
     async def attach_ws_and_start(self, ws: WebSocket):
+        # Handle telephony params and recording
+        await self._handle_telephony_params(self.twilio_sid)
+
         super().attach_ws(ws)
 
         await self._wait_for_twilio_start(ws)
@@ -106,6 +113,87 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
                 break
         await ws.close(code=1000, reason=None)
         await self.terminate()
+
+    async def _handle_telephony_params(self, sid: str):
+        tasks = []
+
+        # Apply all telephony params if provided
+        if self.telephony_params:
+            # Check if the 'Record' parameter is present
+            if (
+                "Record" in self.telephony_params
+                and self.telephony_params["Record"].lower() == "true"
+            ):
+                tasks.append(self._safe_start_recording(sid))
+                # Remove 'Record' related params from telephony_params to avoid reapplying them
+                self.telephony_params.pop("Record")
+                self.telephony_params.pop("RecordingStatusCallbackEvent", None)
+                self.telephony_params.pop("RecordingStatusCallback", None)
+
+            # Only apply telephony params if there are any remaining after removing the Record-related params
+            if self.telephony_params:  # Check if there are any params left
+                tasks.append(self._safe_apply_telephony_params(sid, self.telephony_params))
+
+        if tasks:
+            # Run tasks in parallel
+            await asyncio.gather(*tasks)
+
+    async def _safe_start_recording(self, sid: str):
+        try:
+            await self._start_recording(sid)
+        except Exception as e:
+            logger.error(f"Failed to start recording for call SID: {sid}. Error: {str(e)}")
+
+    async def _safe_apply_telephony_params(self, sid: str, params: Dict[str, str]):
+        try:
+            await self._apply_telephony_params(sid, params)
+        except Exception as e:
+            logger.error(f"Failed to apply telephony params for call SID: {sid}. Error: {str(e)}")
+
+    async def _start_recording(self, sid: str):
+        url = f"https://api.twilio.com/2010-04-01/Accounts/{self.twilio_config.account_sid}/Calls/{sid}/Recordings.json"
+        auth = aiohttp.BasicAuth(
+            login=self.twilio_config.account_sid,
+            password=self.twilio_config.auth_token,
+        )
+
+        # Default to environment variables if not provided in telephony_params
+        recording_status_callback_event = self.telephony_params.get(
+            "RecordingStatusCallbackEvent", "completed"
+        )
+        recording_status_callback = self.telephony_params.get(
+            "RecordingStatusCallback", os.environ.get("RECORDING_HOOK_URL")
+        )
+
+        data = {
+            "RecordingStatusCallbackEvent": recording_status_callback_event,
+            "RecordingStatusCallback": recording_status_callback,
+        }
+
+        async with aiohttp.ClientSession(auth=auth) as session:
+            async with session.post(url, data=data) as response:
+                if response.status != 201:
+                    logger.error(
+                        f"Failed to start recording for call SID: {sid}, Status code: {response.status}, Response: {await response.text()}"
+                    )
+                else:
+                    logger.info(f"Recording started for call SID: {sid}")
+
+    async def _apply_telephony_params(self, sid: str, params: Dict[str, str]):
+        url = f"https://api.twilio.com/2010-04-01/Accounts/{self.twilio_config.account_sid}/Calls/{sid}.json"
+        auth = aiohttp.BasicAuth(
+            login=self.twilio_config.account_sid,
+            password=self.twilio_config.auth_token,
+        )
+
+        async with aiohttp.ClientSession(auth=auth) as session:
+            async with session.post(url, data=params) as response:
+                if response.status != 200:
+                    logger.error(
+                        f"Failed to apply telephony params for call SID: {sid}, Status code: {response.status}, Response: {await response.text()}"
+                    )
+                else:
+                    logger.info(f"Telephony params applied for call SID: {sid}")
 
     async def _wait_for_twilio_start(self, ws: WebSocket):
         assert isinstance(self.output_device, TwilioOutputDevice)

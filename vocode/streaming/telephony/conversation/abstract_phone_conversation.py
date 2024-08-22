@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Literal, Optional, TypeVar, Union
+from typing import Literal, Optional, TypeVar, Union, Dict
 
 from fastapi import WebSocket
 from loguru import logger
@@ -49,6 +49,7 @@ class AbstractPhoneConversation(StreamingConversation[TelephonyOutputDeviceType]
         conversation_id: Optional[str] = None,
         events_manager: Optional[EventsManager] = None,
         speed_coefficient: float = 1.0,
+        telephony_params: Optional[Dict[str, str]] = None,
     ):
         conversation_id = conversation_id or create_conversation_id()
         ctx_conversation_id.set(conversation_id)
@@ -57,6 +58,7 @@ class AbstractPhoneConversation(StreamingConversation[TelephonyOutputDeviceType]
         self.from_phone = from_phone
         self.to_phone = to_phone
         self.base_url = base_url
+        self.telephony_params = telephony_params
         super().__init__(
             output_device,
             transcriber_factory.create_transcriber(transcriber_config),

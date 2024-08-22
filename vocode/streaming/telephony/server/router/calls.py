@@ -56,6 +56,7 @@ class CallsRouter(BaseRouter):
         agent_factory: AbstractAgentFactory = DefaultAgentFactory(),
         synthesizer_factory: AbstractSynthesizerFactory = DefaultSynthesizerFactory(),
         events_manager: Optional[EventsManager] = None,
+        telephony_params: Optional[dict] = None,
     ) -> AbstractPhoneConversation:
         if isinstance(call_config, TwilioCallConfig):
             return TwilioPhoneConversation(
@@ -74,6 +75,7 @@ class CallsRouter(BaseRouter):
                 synthesizer_factory=synthesizer_factory,
                 events_manager=events_manager,
                 direction=call_config.direction,
+                telephony_params=telephony_params,
             )
         elif isinstance(call_config, VonageCallConfig):
             return VonagePhoneConversation(
@@ -115,6 +117,7 @@ class CallsRouter(BaseRouter):
                 agent_factory=self.agent_factory,
                 synthesizer_factory=self.synthesizer_factory,
                 events_manager=self.events_manager,
+                telephony_params= call_config.telephony_params
             )
 
             await phone_conversation.attach_ws_and_start(websocket)
