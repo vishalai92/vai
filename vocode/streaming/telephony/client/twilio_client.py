@@ -63,18 +63,19 @@ class TwilioClient(BaseTelephonyClient):
         if len(to_phone) < 8:
             raise ValueError("Invalid 'to' phone")
 
-        if not mobile_only:
-            return
-        line_type_intelligence = (
-            self.twilio_client.lookups.v2.phone_numbers(to_phone)
-            .fetch(fields="line_type_intelligence")
-            .line_type_intelligence
-        )
+        # Phone number format check with US country validation
+        try:
+            phone_number = self.twilio_client.lookups.v2.phone_numbers(to_phone).fetch(country_code="US")
+            
+            if phone_number.country_code != "US":
+                raise ValueError("Only US phone numbers are allowed")
 
-        # Updated logic to allow mobile and VoIP numbers
-        allowed_types = ["mobile", "fixedVoip", "nonFixedVoip"]
-        if not line_type_intelligence or (
-            line_type_intelligence
-            and line_type_intelligence["type"] not in allowed_types
-        ):
-            raise ValueError("Can only call mobile and VoIP phones")
+            formatted_phone = phone_number.phone_number
+
+            if not formatted_phone:
+                raise ValueError("Invalid phone number format")
+
+        except Exception as e:
+            raise ValueError(f"Invalid phone number: {str(e)}")
+
+        # If we reach this point, the phone number is considered valid and is a US number
